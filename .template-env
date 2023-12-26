@@ -1,0 +1,3 @@
+STRIPE_API_KEY = ""
+MONGO_URL = ""
+CORS_ORIGIN = ""
