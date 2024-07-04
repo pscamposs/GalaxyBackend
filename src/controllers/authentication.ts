@@ -46,6 +46,9 @@ export const login = async (req: express.Request, res: express.Response) => {
 
     res.cookie("session", user.authentication.sessionToken, {
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+      sameSite: "none",
+      secure: true,
+      httpOnly: true,
     });
 
     return res
