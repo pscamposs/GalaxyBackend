@@ -24,7 +24,12 @@ export const registerPlugin = async (
 ) => {
   try {
     if (req.file) {
-      let { name, description, image, price } = req.body;
+      let {
+        name,
+        description,
+        image = "https://media.forgecdn.net/avatars/thumbnails/989/233/256/256/638501716214297047.png",
+        price,
+      } = req.body;
       if (!name || !price)
         return res
           .status(400)
@@ -46,7 +51,8 @@ export const registerPlugin = async (
           plugin?.name,
           plugin?.price,
           1,
-          plugin?.image
+          plugin?.image ||
+            "https://media.forgecdn.net/avatars/thumbnails/989/233/256/256/638501716214297047.png"
         )
       );
 
@@ -127,7 +133,7 @@ export const updatePlugin = async (
           plugin?.name,
           plugin?.price,
           1,
-          plugin?.image
+          plugin?.image as string
         )
       );
       return res
@@ -144,7 +150,7 @@ export const getUserPlugins = async (
   req: express.Request,
   res: express.Response
 ) => {
-  let sessionToken = req?.cookies["g-auth"];
+  let sessionToken = req?.cookies["session"];
   if (!sessionToken) return res.sendStatus(401);
 
   let user = await getUserFromSession(sessionToken).select("+plugins");
@@ -164,7 +170,7 @@ export const getUserPluginsWithCategory = async (
   req: express.Request,
   res: express.Response
 ) => {
-  let sessionToken = req?.cookies["g-auth"];
+  let sessionToken = req?.cookies["session"];
   if (!sessionToken) return res.sendStatus(401);
   let category = req.params["category"];
 
@@ -234,7 +240,7 @@ export const downloadPlugin = async (
     let path = pluginFile?.path + pluginFile?.name;
 
     if (plugin.price > 0) {
-      let sessionToken = req?.cookies["g-auth"];
+      let sessionToken = req?.cookies["session"];
       if (!sessionToken) return res.sendStatus(401);
 
       let user = await getUserFromSession(sessionToken).select("+plugins");

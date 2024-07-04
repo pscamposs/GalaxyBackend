@@ -38,7 +38,7 @@ export const processPurchase = async (
     if (!preference) {
       return res.status(500).send("Failed to create preference");
     }
-    let sessionToken = req.cookies["g-auth"];
+    let sessionToken = req.cookies["session"];
     const user = await getUserFromSession(sessionToken);
 
     if (!user) {

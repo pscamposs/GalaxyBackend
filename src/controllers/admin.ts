@@ -1,4 +1,8 @@
-import { PaymentModel, getPaymentsByStatus } from "./../db/Payment";
+import {
+  PaymentModel,
+  getPaymentsByStatus,
+  getPaymentsRanking,
+} from "./../db/Payment";
 import express from "express";
 import { fetchPlugins } from "../db/Plugins";
 import { getUsers } from "../db/Users";
@@ -13,11 +17,15 @@ export const fetchGeneralData = async (
     let users = await getUsers();
     let payments = await getPaymentsByStatus("paid");
     let totalSales = payments.reduce((acc, e) => acc + e.price, 0);
+
+    let clientRanking = await getPaymentsRanking();
+
     let data = {
       users: users.length,
       plugins: plugins.length,
       payments: payments.length,
       totalSales,
+      clientRanking,
     };
 
     return res.status(200).json(data);

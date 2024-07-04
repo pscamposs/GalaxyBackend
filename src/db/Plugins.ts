@@ -7,7 +7,7 @@ const PluginSchema = new mongoose.Schema({
     required: false,
 
     default:
-      "https://galaxystore.pscampos.online/res/images/plugins/default.png",
+      "https://media.forgecdn.net/avatars/thumbnails/989/233/256/256/638501716214297047.png",
   },
   description: {
     type: String,
@@ -16,7 +16,7 @@ const PluginSchema = new mongoose.Schema({
   },
   category: { type: String, required: true, default: "GERAL" },
   price: { type: Number, required: true },
-  file: { type: String, required: true, select: false },
+  file: { type: String, required: true },
   downloads: { type: Number, required: true, default: 0 },
 });
 

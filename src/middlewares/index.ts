@@ -9,7 +9,7 @@ export const isAuthenticated = async (
   next: express.NextFunction
 ) => {
   try {
-    const sessionToken = req.cookies["g-auth"];
+    const sessionToken = req.cookies["session"];
     if (!sessionToken) return res.sendStatus(403);
 
     const user = await getUserFromSession(sessionToken);
@@ -29,7 +29,7 @@ export const hasRole = (roles: string[]) => {
     res: express.Response,
     next: express.NextFunction
   ) => {
-    const sessionToken = req.cookies["g-auth"];
+    const sessionToken = req.cookies["session"];
 
     if (!sessionToken) return res.sendStatus(403);
     const user = await getUserFromSession(sessionToken).select("+roles");

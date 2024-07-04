@@ -22,7 +22,7 @@ export const getUserBySession = async (
   res: express.Response
 ) => {
   try {
-    let sessionToken = req.cookies["g-auth"];
+    let sessionToken = req.cookies["session"];
     let user = await getUserFromSession(sessionToken).select("+roles");
 
     if (!user)
@@ -35,7 +35,7 @@ export const getUserBySession = async (
           )
         );
 
-    res.cookie("g-auth", sessionToken, {
+    res.cookie("session", sessionToken, {
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
     });
 
@@ -58,7 +58,7 @@ export const getUserBySession = async (
 
 export const logout = async (req: express.Request, res: express.Response) => {
   try {
-    let sessionToken = req.cookies["g-auth"];
+    let sessionToken = req.cookies["session"];
     let user = await getUserFromSession(sessionToken).select("+roles");
 
     if (!user)
@@ -71,7 +71,7 @@ export const logout = async (req: express.Request, res: express.Response) => {
           )
         );
 
-    res.clearCookie("g-auth");
+    res.clearCookie("session");
 
     return res.redirect("/");
   } catch (error) {

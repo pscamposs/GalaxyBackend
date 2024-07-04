@@ -33,6 +33,16 @@ export const UserModel = mongoose.model("User", UserSchema);
 
 export const getUsers = () => UserModel.find();
 export const getUserByEmail = (email: string) => UserModel.findOne({ email });
+export const getUser = (user: string) =>
+  UserModel.findOne().or([
+    {
+      email: user,
+    },
+    {
+      username: user,
+    },
+  ]);
+
 export const getUserByUsername = (username: string) =>
   UserModel.findOne({ username });
 export const getUserFromSession = (sessionToken: string) =>

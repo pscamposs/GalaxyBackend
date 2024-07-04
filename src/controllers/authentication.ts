@@ -3,6 +3,7 @@ import express from "express";
 import {
   UserModel,
   createUser,
+  getUser,
   getUserByEmail,
   getUserByUsername,
 } from "../db/Users";
@@ -11,19 +12,15 @@ import { AuthResponse, Response } from "../helpers/response";
 
 export const login = async (req: express.Request, res: express.Response) => {
   try {
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
-    if (!email || !password) {
+    if (!username || !password) {
       return res.sendStatus(400);
     }
 
-    const user = email.includes("@")
-      ? await getUserByEmail(email).select(
-          "+authentication.salt +authentication.password"
-        )
-      : await getUserByUsername(email).select(
-          "+authentication.salt +authentication.password"
-        );
+    const user = await getUser(username).select(
+      "+authentication.password +authentication.salt"
+    );
 
     if (!user) {
       return res
@@ -47,7 +44,7 @@ export const login = async (req: express.Request, res: express.Response) => {
     );
     await user.save();
 
-    res.cookie("g-auth", user.authentication.sessionToken, {
+    res.cookie("session", user.authentication.sessionToken, {
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
     });
 

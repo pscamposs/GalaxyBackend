@@ -1,5 +1,9 @@
 import app from "./app";
+import dotenv from "dotenv";
+dotenv.config();
 
-app.listen(3000, () => {
-  console.log("Servidor iniciado com sucesso.");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Servidor iniciado com sucesso em http://localhost:${PORT}`);
 });

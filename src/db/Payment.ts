@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { getUserByEmail } from "./Users";
 
 const PaymentSchema = new mongoose.Schema({
   checkoutId: { type: String, required: true },
@@ -32,6 +33,29 @@ export const getPayments = () => PaymentModel.find();
 
 export const getPaymentsByStatus = (status: string) =>
   PaymentModel.find({ status });
+
+export const getPaymentsRanking = async () => {
+  let payments = await getPaymentsByStatus("paid");
+  let totals = {};
+
+  for (let payment of payments) {
+    let user = await getUserByEmail(payment.email);
+
+    if (totals[user.username]) {
+      totals[user.username] += payment.price;
+    } else {
+      totals[user.username] = payment.price;
+    }
+  }
+
+  let ranking = Object.entries(totals).map(([username, total]) => ({
+    username,
+    total,
+  }));
+  ranking.sort((a, b) => b.total - a.total);
+
+  return ranking;
+};
 
 export const initiatePayment = (values: Record<string, any>) =>
   new PaymentModel(values).save().then((plugin) => plugin.toObject());

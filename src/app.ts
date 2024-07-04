@@ -12,7 +12,7 @@ class App {
   public constructor() {
     dotenv.config();
     this.express = express();
-    this.mongoUrl = process.env.MONGO_URL;
+    this.mongoUrl = process.env.MONGO_URL as string;
     this.database();
     this.middlewares();
     this.routes();

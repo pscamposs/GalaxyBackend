@@ -1,5 +1,6 @@
 import { Plugin } from "./models";
 import dotenv from "dotenv";
+dotenv.config();
 
 const stripe = require("stripe")(process.env.STRIPE_API_KEY);
 
@@ -16,7 +17,7 @@ export const createProduct = async (plugin: Plugin) => {
     .then(async (product) => {
       const price = await stripe.prices.create({
         product: plugin.id,
-        unit_amount: Math.round(plugin.price * 100),
+        unit_amount: Math.round(plugin.price),
         currency: "brl",
       });
     });
@@ -42,7 +43,7 @@ export const editProduct = async (plugin: Plugin) => {
       const existingPriceId = prices.data[0].id;
 
       const updatedPrice = await stripe.prices.create({
-        unit_amount: plugin.price * 100,
+        unit_amount: plugin.price,
         currency: "brl",
         product: plugin.id,
       });
