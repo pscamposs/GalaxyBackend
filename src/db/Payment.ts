@@ -27,7 +27,7 @@ export const getPaymentById = (checkoutId: string) =>
   PaymentModel.findOne({ checkoutId });
 
 export const getPaymentByUserEmail = (email: string) =>
-  PaymentModel.findOne({ email });
+  PaymentModel.find({ email, status: "paid" });
 
 export const getPayments = () => PaymentModel.find();
 
@@ -35,22 +35,25 @@ export const getPaymentsByStatus = (status: string) =>
   PaymentModel.find({ status });
 
 export const getPaymentsRanking = async () => {
-  let payments = await getPaymentsByStatus("paid");
+  let payments = await getPayments();
   let totals = {};
+  let userCreatedAt = {};
 
-  for (let payment of payments) {
-    let user = await getUserByEmail(payment.email);
+  for (let payment of payments as any) {
+    let user = await getUserByEmail(payment.email).select("+createdAt");
 
     if (totals[user.username]) {
       totals[user.username] += payment.price;
     } else {
       totals[user.username] = payment.price;
+      userCreatedAt[user.username] = user.createdAt;
     }
   }
 
   let ranking = Object.entries(totals).map(([username, total]) => ({
     username,
     total,
+    createdAt: userCreatedAt[username], // Inclui a data de criação do usuário no ranking
   }));
   ranking.sort((a, b) => b.total - a.total);
 

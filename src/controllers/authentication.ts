@@ -9,8 +9,10 @@ import {
 } from "../db/Users";
 import { random } from "../helpers";
 import { AuthResponse, Response } from "../helpers/response";
+import { getPaymentByUserEmail } from "../db/Payment";
 
 export const login = async (req: express.Request, res: express.Response) => {
+  console.log(req.body);
   try {
     const { username, password } = req.body;
 
@@ -19,7 +21,7 @@ export const login = async (req: express.Request, res: express.Response) => {
     }
 
     const user = await getUser(username).select(
-      "+authentication.password +authentication.salt"
+      "+authentication.password +authentication.salt +roles"
     );
 
     if (!user) {
@@ -44,23 +46,25 @@ export const login = async (req: express.Request, res: express.Response) => {
     );
     await user.save();
 
-    res.cookie("session", user.authentication.sessionToken, {
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
-      sameSite: "none",
-      secure: true,
-      httpOnly: true,
-    });
+    const { email, roles } = user.toObject();
+    let payments = await getPaymentByUserEmail(user.email);
+    let totalSpent = payments.reduce(
+      (payment, acc) => payment.price + acc.price,
+      0
+    );
+    let responseR = {
+      message: "success",
+      profile: {
+        accessToken: user.authentication.sessionToken,
+        username,
+        email,
+        roles,
+      },
+      timestamp: new Date(),
+    };
+    console.log(responseR);
 
-    return res
-      .status(200)
-      .json(
-        new AuthResponse(
-          "success",
-          `Seja bem vindo(a), ${user.username}!`,
-          user.authentication.sessionToken
-        )
-      )
-      .end();
+    return res.status(200).send(responseR);
   } catch (error) {
     console.log(error);
     return res.sendStatus(400);

@@ -150,7 +150,7 @@ export const getUserPlugins = async (
   req: express.Request,
   res: express.Response
 ) => {
-  let sessionToken = req?.cookies["session"];
+  let sessionToken = req.headers.authorization;
   if (!sessionToken) return res.sendStatus(401);
 
   let user = await getUserFromSession(sessionToken).select("+plugins");
@@ -160,7 +160,12 @@ export const getUserPlugins = async (
 
   for (const id of user.plugins) {
     let plugin = await fetchPlugin(id.toString());
-    plugins.push(plugin);
+    const { ...pluginData } = plugin?.toObject(); // Desestrutura o documento do Mongoose e converte para um objeto JavaScript
+
+    plugins.push({
+      ...pluginData,
+      purchased: true,
+    });
   }
 
   return res.status(200).json(plugins);
@@ -170,7 +175,7 @@ export const getUserPluginsWithCategory = async (
   req: express.Request,
   res: express.Response
 ) => {
-  let sessionToken = req?.cookies["session"];
+  let sessionToken = req.headers.authorization;
   if (!sessionToken) return res.sendStatus(401);
   let category = req.params["category"];
 
@@ -240,7 +245,7 @@ export const downloadPlugin = async (
     let path = pluginFile?.path + pluginFile?.name;
 
     if (plugin.price > 0) {
-      let sessionToken = req?.cookies["session"];
+      let sessionToken = req.headers.authorization; // Obtém o token do cabeçalho
       if (!sessionToken) return res.sendStatus(401);
 
       let user = await getUserFromSession(sessionToken).select("+plugins");

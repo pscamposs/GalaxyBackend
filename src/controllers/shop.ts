@@ -33,16 +33,27 @@ export const processPurchase = async (
       return res.status(500).send("No plugins found");
     }
 
+    let sessionToken = req.headers.authorization;
+    const user = await getUserFromSession(sessionToken).select("+plugins");
+    let plugins = user?.plugins;
+
+    if (plugins) {
+      if (cart.some((plugin) => plugins.includes(plugin))) {
+        return res.status(400).json({
+          error: true,
+          message: "Você já possuí um dos produtos.",
+        });
+      }
+    }
+
+    if (!user) {
+      return res.status(401).send("User not authenticated");
+    }
+
     const preference = await createProductPreference(pluginsToBuy);
 
     if (!preference) {
       return res.status(500).send("Failed to create preference");
-    }
-    let sessionToken = req.cookies["session"];
-    const user = await getUserFromSession(sessionToken);
-
-    if (!user) {
-      return res.status(401).send("User not authenticated");
     }
 
     const totalPrice = pluginsToBuy.reduce(
